@@ -26,6 +26,7 @@ analytic_solution = shocktube.get_analytic_solution(
 )
 ```
 
+
 You may customize the physical status of the shocktube via:
 ```python
 shocktube = solver_analytic.ShockTube(rho_left=1.0, u_left=0.0, p_left=1.0, rho_right=0.125, u_right=0.0, p_right=0.1)
