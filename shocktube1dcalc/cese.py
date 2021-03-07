@@ -163,14 +163,12 @@ class ShockTube(object):
         for j in range(m):
             w2 = mtx_q[1, j] / mtx_q[0, j]
             w3 = mtx_q[2, j] / mtx_q[0, j]
-            # f[0][0] = 0.0
             mtx_f[0, 1] = 1.0
-            # f[0][2] = 0.0
-            mtx_f[1, 0] = -((3.0 - GAMMA) / 2.0) * w2 ** 2
+            mtx_f[1, 0] = -((3.0 - GAMMA) / 2.0) * (w2 ** 2)
             mtx_f[1, 1] = (3.0 - GAMMA) * w2
             mtx_f[1, 2] = GAMMA - 1.0
-            mtx_f[2, 0] = (GAMMA - 1.0) * w2 ** 3 - GAMMA * w2 * w3
-            mtx_f[2, 1] = GAMMA * w3 - (GAMMA - 1.0) * w2 ** 2
+            mtx_f[2, 0] = (GAMMA - 1.0) * (w2 ** 3) - GAMMA * w2 * w3
+            mtx_f[2, 1] = GAMMA * w3 - (GAMMA - 1.0) * (w2 ** 2)
             mtx_f[2, 2] = GAMMA * w2
 
             # (4.17) in chang95
@@ -248,8 +246,10 @@ class ShockTube(object):
         number_mesh_points_before_hdt = data.it_pt_nb
         mtx_q = data.mtx_q
         mtx_qn = data.mtx_qn
+
         for j in range(1, number_mesh_points_before_hdt):
             mtx_q[:, j] = mtx_qn[:, j]
+
         data.it_pt_nb = number_mesh_points_before_hdt + 1
 
 
