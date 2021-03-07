@@ -50,17 +50,19 @@ class ShockTube(object):
         grid_size_x=0.01,
         mesh_x_start=-1.0,
         mesh_x_stop=1.0,
+        rho_l=RHO_L,
+        u_l=U_L,
+        p_l=P_L,
+        rho_r=RHO_R,
+        u_r=U_R,
+        p_r=P_R
     ):
         grid_point_number = round(((mesh_x_stop - mesh_x_start) / grid_size_x) + 1)
         mesh_x = np.linspace(mesh_x_start, mesh_x_stop, grid_point_number)
 
-        # self.check_input(iteration,
-        #                 grid_size_t,
-        #                 grid_size_x,
-        #                 mesh_x_start,
-        #                 mesh_x_stop)
-
         # mesh point number along x
+        # it we expect there are total N iteration number,
+        # we will need at least N+2 grid points
         mesh_pt_number_x_at_half_t = iteration + 1
         mesh_pt_number_x = iteration + 2
 
@@ -103,6 +105,27 @@ class ShockTube(object):
             vxr=vxr,
         )
 
+        # initialize the gas status before the diaphragm was removed.
+        # The number used to calculate the status before
+        # the half delta t stepping is applied is 2.
+        # This means we begin the iteration process by two grid points.
+        self._data.it_pt_nb = 2
+
+        # access necessary data member
+        mesh_pt_number_x_at_half_t = self._data.mesh_pt_number_x_at_half_t
+        mtx_q = self._data.mtx_q
+        # set up the status in the lefthand side
+        mtx_q[0][0] = rho_l
+        mtx_q[1][0] = rho_l * u_l
+        mtx_q[2][0] = p_l / (GAMMA - 1.0) + 0.5 * rho_l * (u_l ** 2.0)
+        # set up the status in the righthand side
+        for i in range(mesh_pt_number_x_at_half_t):
+            mtx_q[0, i + 1] = rho_r
+            mtx_q[1, i + 1] = rho_r * u_r
+            mtx_q[2, i + 1] = p_r / (GAMMA - 1.0) + 0.5 * rho_r * (u_r ** 2.0)
+
+        self._data.it_nb = -1  # no CESE iteration begins
+
     @property
     def data(self):
         return self._data
@@ -111,12 +134,6 @@ class ShockTube(object):
         """
         the whole CESE iteration process
         """
-        # initialize the gas status before the diaphragm was removed.
-        self.init_gas_status()
-        # The number used to calculate the status before
-        # the half delta t stepping is applied is 2.
-        # This means we begin the iteration process by two grid points.
-        self._data.it_pt_nb = 2
         for i in range(self._data.iteration):
             self._data.it_nb = i
             self.cal_cese_status_before_half_dt()
@@ -212,6 +229,8 @@ class ShockTube(object):
         mtx_qt = data.mtx_qt
         mtx_qx = data.mtx_qx
         mtx_s = data.mtx_s
+        half_dt = self._data.grid_size_t * 0.5
+        half_dx = self._data.grid_size_x * 0.5
         for j in range(mm):
             # (4.24) in chang95
             # Please note the j+1 on the left hand side addresses
@@ -226,17 +245,17 @@ class ShockTube(object):
                 (
                     mtx_qn[:, j + 1]
                     - mtx_q[:, j]
-                    - (self._data.grid_size_t / 2.0) * mtx_qt[:, j]
+                    - half_dt * mtx_qt[:, j]
                 )
-                / (self._data.grid_size_x / 2.0)
+                / half_dx
             )
             vxr = np.asarray(
                 (
                     mtx_q[:, j + 1]
-                    + (self._data.grid_size_t / 2.0) * mtx_qt[:, j + 1]
+                    + half_dt * mtx_qt[:, j + 1]
                     - mtx_qn[:, j + 1]
                 )
-                / (self._data.grid_size_x / 2.0)
+                / half_dx
             )
             # (4.39) in chang95
             mtx_qx[:, j + 1] = np.asmatrix(
@@ -248,7 +267,7 @@ class ShockTube(object):
         """
         step into the next iteration status
         """
-        #  ask the status at t + 0.5*dt to be the next status before the half delta t is applied
+        # ask the status at t + 0.5*dt to be the next status before the half delta t is applied
         # hdt means 0.5*grid_size_t
         data = self._data
         number_mesh_points_before_hdt = data.it_pt_nb
@@ -257,23 +276,6 @@ class ShockTube(object):
         for j in range(1, number_mesh_points_before_hdt):
             mtx_q[:, j] = mtx_qn[:, j]
         data.it_pt_nb = number_mesh_points_before_hdt + 1
-
-    def init_gas_status(
-        self, rho_l=RHO_L, u_l=U_L, p_l=P_L, rho_r=RHO_R, u_r=U_R, p_r=P_R
-    ):
-        # access necessary data member
-        mesh_pt_number_x_at_half_t = self._data.mesh_pt_number_x_at_half_t
-        mtx_q = self._data.mtx_q
-        # set up the status in the lefthand side
-        mtx_q[0][0] = rho_l
-        mtx_q[1][0] = rho_l * u_l
-        mtx_q[2][0] = p_l / (GAMMA - 1.0) + 0.5 * rho_l * u_l ** 2.0
-        # set up the status in the righthand side
-        for i in range(mesh_pt_number_x_at_half_t):
-            mtx_q[0, i + 1] = rho_r
-            mtx_q[1, i + 1] = rho_r * u_r
-            mtx_q[2, i + 1] = p_r / (GAMMA - 1.0) + 0.5 * rho_r * u_r ** 2.0
-        self._data.it_nb = -1  # no CESE iteration begins
 
 
 # noinspection PyUnresolvedReferences
@@ -304,9 +306,9 @@ class Data(object):
     ]
 
     _includes = [
-        "iteration",
-        "it_nb",  # the nth iteration number, 0 <= it_nb < iteration, -1 means the iteration does not begin
-        "it_pt_nb",  # iteration point number at the it_nb
+        "iteration", # total iteration number
+        "it_nb",  # the current iteration number, 0 <= it_nb < iteration, -1 means the iteration does not start (yet)
+        "it_pt_nb",  # how many x point number to iterate
         "grid_size_t",
         "grid_size_x",
         "mesh_pt_number_x",
@@ -328,44 +330,57 @@ class Data(object):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             if k in self._excludes or k not in self._includes:
-                raise TypeError("{0} is not a valide keyword argument".format(k))
+                raise TypeError("{0} is not a valid keyword argument".format(k))
             self.__dict__[k] = v
 
     def refresh_solution(self):
         """
-        Use the latest mtx_q to caculate the associated rho, v and p.
+        Use the latest mtx_q to calculate the associated rho, v and p.
         Also, apply physic meaning, e.g. location, according to the given parameters.
         """
         # TODO: warning or implementation for refreshing on odd iteration numbers (status at half t)
         solution = []
         # TODO: only for even iteration number status
         #
-        # -1 : iteration does not begin (yet), there are two grid points with ready status,
-        # There are totally self.it_nb + 3 iterated grid points.
+        # When self.it_nb is -1, it means iteration does not begin (yet).
+        # There are two grid points ready to iterate at the beginning of whole marching,
+        # There will be it_nb + 3 iterated grid points during marching. That is to say,
+        # it_pt_nb = it_nb + 3
+        #   Status              N grid points will be used  Reason
+        #   Not begin           2                           2 = -1 +3
+        #   After 2 iteration   4                           4 = 1 + 3
+        #   After 4 iteration   6                           6 = 3 + 3
         #
-        # Every two iteration steps gains one x step in lefthand and righthand side separately,
-        # and we begin the iteration by 2 grid points (it_pt_nb = 2 in the initialized state)
-        # For 100 iterations, totally 51 grid points are 'used' in the left hand side.
-        # There is len(solver_cese.data.mesh_x) /2 grid points ready in the left hand side,
-        # so we associate x mesh grid location index with the mtx_q by solution_x_start_index as
-        # solution_x_start_index = 50
-        # solution_x_start_index = len(self.mesh_x) /2 - (self.iteration + 2)/2
+        # Every two iteration step make one more x step new derived values in left-hand and right-hand side separately,
+        # and we begin the iteration with 2 grid points (it_pt_nb = 2 in the initialized state)
+        #
+        # In general, if there is len(cese.data.mesh_x)/2 grid points created in the left hand side,
+        # we could associate x mesh grid location index with the mtx_q by solution_x_start_index as
+        # solution_x_start_index = len(self.mesh_x)/2 - total_iterated_pt_nb/2
+        # For example, at the very beginning before marching
+        # Assume there are 102 grid points from the beginning,
+        # solution_x_start_index = 102/2 - (-1 + 3)/2 = 51 - 1 = 50
+        # Because, index counting from 0, there are 51 grid points in the left hand side.
+        # So, for 100 iterations, totally 51 grid points are 'used' in the left hand side,
+        # and a mesh of at least 102 grid points are needed.
+
         total_iterated_pt_nb = self.it_nb + 3
         solution_x_start_index = int((len(self.mesh_x) / 2) - (total_iterated_pt_nb / 2))
         for i in range(total_iterated_pt_nb):
             solution_x = self.mesh_x[i + solution_x_start_index]
-            x = solution_x
             solution_rho = self.mtx_q[0, i]
             solution_v = self.mtx_q[1, i] / self.mtx_q[0, i]
             solution_p = (GAMMA - 1.0) * (
                 self.mtx_q[2, i] - 0.5 * (solution_v ** 2) * self.mtx_q[0, i]
             )
+            # solution format
             solution.append((solution_x, solution_rho, solution_v, solution_p))
+
         self.solution = self.fill_solution(solution)
 
     def fill_solution(self, solution_list):
         """
-        fill solution array with initial values if there is without solution
+        fill solution array with initial values if no solution represents
         """
         solution_list_rtn = [0] * len(self.mesh_x)
         solution_x_list = []
