@@ -136,8 +136,8 @@ class ShockTube(object):
         """
         for i in range(self._data.iteration):
             self._data.it_nb = i
-            self.cal_cese_status_before_half_dt()
-            self.cal_cese_status_after_half_dt()
+            self.calc_cese_status_before_half_dt()
+            self.calc_cese_status_after_half_dt()
             self.push_status_along_t()
         # this is not necessary
         # but it has no risk to refresh and make sure
@@ -148,7 +148,7 @@ class ShockTube(object):
         self._data.refresh_solution()
         return list(self._data.solution)
 
-    def cal_cese_status_before_half_dt(self):
+    def calc_cese_status_before_half_dt(self):
         """
         the gas current status
         """
@@ -190,7 +190,7 @@ class ShockTube(object):
                 * mtx_qx[:, j]
             )
 
-    def cal_cese_status_after_half_dt(self):
+    def calc_cese_status_after_half_dt(self):
         """
         the gas status after half of dt
         """
