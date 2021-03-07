@@ -14,7 +14,7 @@ from shocktube1dcalc.helper import (
 )
 
 TIME_STEP_SIZE = 0.01
-TIME_TOTAL_ELAPSE = 0.2
+TIME_TOTAL_ELAPSE = 0.4
 
 
 def get_analytic_solutions(moment, mesh):
@@ -85,7 +85,7 @@ def plot_solution_single_artist(
         )
 
         if type_name == "deviation":
-            ax.set(xlim=[-1, 1], ylim=[-0.01, 0.01])
+            ax.set(xlim=[-1, 1], ylim=[-0.4, 0.4])
         else:
             ax.set(xlim=[-1, 1], ylim=[0, 1.1])
 
@@ -111,7 +111,7 @@ def get_solution_single_artist(
     ]
     titles_ordered = collections.OrderedDict(title_items)
 
-    helper.DEVIATION_PRECISION = 2
+    helper.DEVIATION_PRECISION = 0.4
     values_deviation = get_deviation_values(values_base, values_target, titles_ordered)
 
     plot_solution_single_artist_overlapping(
