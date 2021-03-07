@@ -29,6 +29,7 @@ def get_cese_solutions(moment):
     iteration_number = round(moment / 0.004 * 2)
     shocktube = cese.ShockTube(iteration=iteration_number, grid_size_t=cese_grid_size_t)
     shocktube.run_cese_iteration()
+
     return shocktube.data.solution
 
 
@@ -42,8 +43,7 @@ def plot_solution_single_artist_overlapping(
     values_target,
     color_base,
     color_target,
-    marker_base,
-    marker_target,
+    marker,
 ):
     key_idx = 0
     for key in titles_ordered:
@@ -52,10 +52,9 @@ def plot_solution_single_artist_overlapping(
         values_x = values_base["x"] + values_target["x"]
         values_y = values_base[key] + values_target[key]
         colors = [color_base]*len(values_base["x"]) + [color_target]*len(values_target["x"])
-        markers = [marker_base]*len(values_base["x"]) + [marker_target]*len(values_target["x"])
 
         subplot = ax.scatter(
-            values_x, values_y, s=10, c=colors, marker=marker_base
+            values_x, values_y, s=10, c=colors, marker=marker
         )
 
         if type_name == "deviation":
@@ -118,7 +117,7 @@ def plot_solution_single_frame(
     values_deviation = get_deviation_values(values_base, values_target, titles_ordered)
 
     plot_solution_single_artist_overlapping(
-        artist, titles_ordered, moment, "target", ax_overlapping, values_base, values_target, "g", "b", "8", "s"
+        artist, titles_ordered, moment, "target", ax_overlapping, values_base, values_target, "g", "b", "8"
     )
     plot_solution_single_artist(
         artist,
@@ -181,6 +180,6 @@ frame_seq = plot_solution_video_frames(
 )
 
 ani = animation.ArtistAnimation(
-    fig4video, frame_seq, interval=25, repeat_delay=300, blit=True
+    fig4video, frame_seq, interval=250, repeat_delay=1000
 )
 ani.save("/tmp/1d-sod-tube-cese-analytic.mp4", writer=writer)
