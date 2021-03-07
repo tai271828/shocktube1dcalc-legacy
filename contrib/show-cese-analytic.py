@@ -14,7 +14,7 @@ from shocktube1dcalc.helper import (
 )
 
 TIME_STEP_SIZE = 0.01
-TIME_TOTAL_ELAPSE = 0.1
+TIME_TOTAL_ELAPSE = 0.2
 
 
 def get_analytic_solutions(moment, mesh):

@@ -151,6 +151,8 @@ class ShockTube(object):
     def calc_cese_status_before_half_dt(self):
         """
         the gas current status
+
+        mtx: means matrix or vector
         """
         data = self._data
         m = data.it_pt_nb
@@ -174,7 +176,7 @@ class ShockTube(object):
             # (4.17) in chang95
             mtx_qt[:, j] = -1.0 * mtx_f * mtx_qx[:, j]
             # (4.25) in chang95
-            # the n_(fmt)_j of the last term should be substitubed
+            # the n_(fmt)_j of the last term should be substituted
             # by the other terms.
             mtx_s[:, j] = (
                 (self._data.grid_size_x / 4.0) * mtx_qx[:, j]
