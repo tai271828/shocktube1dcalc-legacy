@@ -99,7 +99,7 @@ def plot_solution_single_artist(
         key_idx = key_idx + 1
 
 
-def plot_solution_single_frame(
+def get_solution_single_artist(
     values_base, values_target, ax_overlapping, ax_deviation, moment
 ):
     artist = []
@@ -131,7 +131,7 @@ def plot_solution_single_frame(
     return artist
 
 
-def plot_solution_video_frames(
+def get_solution_video_artists(
     time_step, time_total_elapse, ax_overlapping, ax_deviation
 ):
     artist_frames = []
@@ -149,7 +149,7 @@ def plot_solution_video_frames(
         solution_analytic = convert_format1_to_format2(sodtube_analytic)[2]
 
         artist_frames.append(
-            plot_solution_single_frame(
+            get_solution_single_artist(
                 solution_analytic,
                 solution_cese,
                 ax_overlapping,
@@ -173,11 +173,11 @@ fig4video, (axis_overlapping, axis_deviation) = plt.subplots(
     subplot_row, subplot_column, figsize=(1600 / my_dpi, 1000 / my_dpi), dpi=my_dpi
 )
 fig4video.subplots_adjust(hspace=0.4, wspace=0.4)
-frame_seq = plot_solution_video_frames(
+artists = get_solution_video_artists(
     TIME_STEP_SIZE, TIME_TOTAL_ELAPSE, axis_overlapping, axis_deviation
 )
 
 ani = animation.ArtistAnimation(
-    fig4video, frame_seq, interval=250, repeat_delay=1000
+    fig4video, artists, interval=250, repeat_delay=1000
 )
 ani.save("/tmp/1d-sod-tube-cese-analytic.mp4", writer=writer)
