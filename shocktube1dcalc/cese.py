@@ -162,10 +162,16 @@ class ShockTube(object):
         mtx_qx = data.mtx_qx
         mtx_s = data.mtx_s
 
+        dx = self._data.grid_size_x
+        dt = self._data.grid_size_t
+
         for j in range(m):
             w2 = mtx_q[1, j] / mtx_q[0, j]
             w3 = mtx_q[2, j] / mtx_q[0, j]
+            # chang95 eq 4.7, the f matrix
+            mtx_f[0, 0] = 0.0
             mtx_f[0, 1] = 1.0
+            mtx_f[0, 2] = 0.0
             mtx_f[1, 0] = -((3.0 - GAMMA) / 2.0) * (w2 ** 2)
             mtx_f[1, 1] = (3.0 - GAMMA) * w2
             mtx_f[1, 2] = GAMMA - 1.0
@@ -179,12 +185,12 @@ class ShockTube(object):
             # the n_(fmt)_j of the last term should be substituted
             # by the other terms.
             mtx_s[:, j] = (
-                (self._data.grid_size_x / 4.0) * mtx_qx[:, j]
-                + (self._data.grid_size_t / self._data.grid_size_x)
+                (dx / 4.0) * mtx_qx[:, j]
+                + (dt / dx)
                 * mtx_f
                 * mtx_q[:, j]
-                - (self._data.grid_size_t / self._data.grid_size_x)
-                * (self._data.grid_size_t / 4.0)
+                - (dt / dx)
+                * (dt / 4.0)
                 * mtx_f
                 * mtx_f
                 * mtx_qx[:, j]
