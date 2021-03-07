@@ -130,6 +130,10 @@ class ShockTube(object):
     def data(self):
         return self._data
 
+    def get_cese_solution(self):
+        self._data.refresh_solution()
+        return list(self._data.solution)
+
     def run_cese_iteration(self):
         """
         the whole CESE iteration process
@@ -143,10 +147,6 @@ class ShockTube(object):
         # but it has no risk to refresh and make sure
         # our solution is up-to-date.
         self._data.refresh_solution()
-
-    def get_cese_solution(self):
-        self._data.refresh_solution()
-        return list(self._data.solution)
 
     def calc_cese_status_before_half_dt(self):
         """
@@ -253,7 +253,6 @@ class ShockTube(object):
         data.it_pt_nb = number_mesh_points_before_hdt + 1
 
 
-# noinspection PyUnresolvedReferences
 class Data(object):
     """
     a container of the data during the CESE iteration process
@@ -307,6 +306,8 @@ class Data(object):
             if k in self._excludes or k not in self._includes:
                 raise TypeError("{0} is not a valid keyword argument".format(k))
             self.__dict__[k] = v
+
+        self.solution = None
 
     def refresh_solution(self):
         """
