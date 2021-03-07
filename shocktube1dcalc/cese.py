@@ -168,7 +168,7 @@ class ShockTube(object):
             mtx_f[1, 1] = (3.0 - GAMMA) * w2
             mtx_f[1, 2] = GAMMA - 1.0
             mtx_f[2, 0] = (GAMMA - 1.0) * (w2 ** 3) - GAMMA * w2 * w3
-            mtx_f[2, 1] = GAMMA * w3 - (GAMMA - 1.0) * (w2 ** 2)
+            mtx_f[2, 1] = GAMMA * w3 - 1.5 * (GAMMA - 1.0) * (w2 ** 2)
             mtx_f[2, 2] = GAMMA * w2
 
             # (4.17) in chang95
