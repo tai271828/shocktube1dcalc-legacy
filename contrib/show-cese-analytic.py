@@ -14,7 +14,7 @@ from shocktube1dcalc.helper import (
 )
 
 TIME_STEP_SIZE = 0.01
-TIME_TOTAL_ELAPSE = 0.4
+TIME_TOTAL_ELAPSE = 0.1
 
 
 def get_analytic_solutions(moment, mesh):
@@ -169,7 +169,7 @@ def plot_solution_video_frames(
 subplot_row = 2
 subplot_column = 3
 Writer = animation.writers["ffmpeg"]
-writer = Writer(fps=15, metadata=dict(artist="Me"), bitrate=1800)
+writer = Writer()
 my_dpi = 96
 fig4video, (axis_overlapping, axis_deviation) = plt.subplots(
     subplot_row, subplot_column, figsize=(1600 / my_dpi, 1000 / my_dpi), dpi=my_dpi
