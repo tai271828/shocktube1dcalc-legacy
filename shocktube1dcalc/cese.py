@@ -181,19 +181,16 @@ class ShockTube(object):
 
             # (4.17) in chang95
             mtx_qt[:, j] = -1.0 * mtx_f * mtx_qx[:, j]
-            # (4.25) in chang95
-            # the n_(fmt)_j of the last term should be substituted
-            # by the other terms.
+            # (4.25) in chang95, which also uses (4.12) and (4.13)
             mtx_s[:, j] = (
                 (dx / 4.0) * mtx_qx[:, j]
                 + (dt / dx)
                 * mtx_f
                 * mtx_q[:, j]
-                - (dt / dx)
+                + (dt / dx)
                 * (dt / 4.0)
                 * mtx_f
-                * mtx_f
-                * mtx_qx[:, j]
+                * mtx_qt[:, j]
             )
 
     def calc_cese_status_after_half_dt(self):
