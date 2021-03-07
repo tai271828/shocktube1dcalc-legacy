@@ -43,18 +43,19 @@ def plot_solution_single_artist_overlapping(
     values_target,
     color_base,
     color_target,
-    marker,
+    marker_base,
+    marker_target
 ):
     key_idx = 0
     for key in titles_ordered:
         ax = ax_type[key_idx]
 
-        values_x = values_base["x"] + values_target["x"]
-        values_y = values_base[key] + values_target[key]
-        colors = [color_base]*len(values_base["x"]) + [color_target]*len(values_target["x"])
+        container_base = ax.scatter(
+            values_base["x"], values_base[key], s=14, c=color_base, marker=marker_base
+        )
 
-        subplot = ax.scatter(
-            values_x, values_y, s=10, c=colors, marker=marker
+        container_target = ax.scatter(
+            values_target["x"], values_target[key], s=2, c=color_target, marker=marker_target
         )
 
         if type_name == "deviation":
@@ -67,11 +68,10 @@ def plot_solution_single_artist_overlapping(
             0.1, 0.08, f"Time: {time_moment:.2f}", transform=ax.transAxes
         )
 
-        artist.append(subplot)
+        artist.append(container_base)
+        artist.append(container_target)
         artist.append(text_time)
         key_idx = key_idx + 1
-
-    return artist
 
 
 def plot_solution_single_artist(
@@ -98,8 +98,6 @@ def plot_solution_single_artist(
         artist.append(text_time)
         key_idx = key_idx + 1
 
-    return artist
-
 
 def plot_solution_single_frame(
     values_base, values_target, ax_overlapping, ax_deviation, moment
@@ -117,7 +115,7 @@ def plot_solution_single_frame(
     values_deviation = get_deviation_values(values_base, values_target, titles_ordered)
 
     plot_solution_single_artist_overlapping(
-        artist, titles_ordered, moment, "target", ax_overlapping, values_base, values_target, "g", "b", "8"
+        artist, titles_ordered, moment, "target", ax_overlapping, values_base, values_target, "g", "b", "X", "x"
     )
     plot_solution_single_artist(
         artist,
