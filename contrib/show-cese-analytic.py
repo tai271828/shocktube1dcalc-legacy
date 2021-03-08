@@ -26,7 +26,7 @@ def get_analytic_solutions(moment, mesh):
 def get_cese_solutions(moment):
     cese_grid_size_t = 0.004
     # multiply 2 for half grids, so total iteration number should be double
-    iteration_number = round(moment / 0.004 * 2)
+    iteration_number = round(moment / cese_grid_size_t * 2)
     shocktube = cese.ShockTube(iteration=iteration_number, grid_size_t=cese_grid_size_t)
     shocktube.run_cese_iteration()
 
