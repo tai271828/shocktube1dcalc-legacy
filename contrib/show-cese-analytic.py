@@ -115,7 +115,8 @@ def get_solution_single_artist(
     values_deviation = get_deviation_values(values_base, values_target, titles_ordered)
 
     plot_solution_single_artist_overlapping(
-        artist, titles_ordered, moment, "target", ax_overlapping, values_base, values_target, "g", "b", "X", "x"
+        artist, titles_ordered, moment, "analytic vs. CESE", ax_overlapping, values_base, values_target,
+        "g", "b", "X", "x"
     )
     plot_solution_single_artist(
         artist,
