@@ -236,9 +236,11 @@ class ShockTube(object):
                 / half_dx
             )
             # (4.39) in chang95
+            #
+            # use np.nextafter(0, 1) to provide a very small number
             mtx_qx[:, j + 1] = np.asmatrix(
-                (vxl * ((abs(vxr)) ** 1.0) + vxr * ((abs(vxl)) ** 1.0))
-                / (((abs(vxl)) ** 1.0) + ((abs(vxr)) ** 1.0) + 1.0e-60)
+                (vxl * abs(vxr) + vxr * abs(vxl))
+                / (abs(vxl) + abs(vxr) + np.nextafter(0, 1))
             )
 
     def push_status_along_t(self):
